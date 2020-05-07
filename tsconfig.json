@@ -5,13 +5,12 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es3",
+    "target": "es2015",
     "sourceMap": false,
     "outDir": "./lib",
     "baseUrl": "./src",
     "allowJs": true,
-    "esModuleInterop": true,
-    "types": []
+    "esModuleInterop": true
   },
   "exclude": ["node_modules", "dist", "../../node_modules"],
   "include": ["./src"]

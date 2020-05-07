@@ -59,6 +59,7 @@ export class Container {
       } else if ((<FactoryProvider>def).useFactory) {
         instance = (<FactoryProvider>def).useFactory();
       } else {
+        // TODO: 判断是否是类
         instance = new (<any>def)()
       }
       this.instanceMap.set(name, instance);
@@ -66,16 +67,23 @@ export class Container {
     return instance;
   }
 
-  public getProviders() {
+  public getProviders(): Provider[] {
     return this.providers;
   }
 
-  public getInstanceMap() {
+  public getInstanceMap(): Map<string, any> {
     return this.instanceMap;
   }
 
-  public setParent(ctx) {
+  public setParent(ctx): void {
+    if (!(ctx instanceof Container)) {
+      throw new Error('模块关联出错，请检查模块的创建方式');
+    }
     this.parent = ctx;
+  }
+
+  public getParent(): Container {
+    return this.parent;
   }
 
 }

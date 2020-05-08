@@ -13,21 +13,25 @@ export type FactoryProvider = {
   useFactory: any;
 }
 
-export type Provider =  ValueProvider | FactoryProvider | ClassProvider;
+export type Provider =  ValueProvider | FactoryProvider | ClassProvider | any;
 
 export interface ContainerProps {
-  providers: Provider[],
-  modules?: Container []
+  providers: Provider[];
+  modules?: Container [];
+  namespace: string;
 }
 
 export class Container {
-  private parent: any; // 父级模块
+  private parent: Container; // 父级模块
   private providers: Provider[];
-  private modules: Container[] | null;
+  private modules: Map<string, Container>;
   private instanceMap: Map<string, any>;
+  private _namespace: string;
 
-  constructor({providers=[], modules=null}: ContainerProps) {
+  constructor({providers=[], modules=null, namespace = 'root'}: ContainerProps) {
     this.instanceMap = new Map();
+    this._namespace = namespace;
+    this.modules = new Map();
     this.providers = providers.map((provider: Provider) => {
       if ((<ValueProvider>provider).useValue || (<FactoryProvider>provider).useFactory || (<ClassProvider>provider).useClass) {
         return provider;
@@ -39,30 +43,36 @@ export class Container {
       }
     });
     if (modules) {
-      modules.forEach(m => m.setParent(this));
-      this.modules = modules;
+      modules.forEach(m =>{
+        m.setParent(this)
+        this.modules.set(m.namespace, m);
+      });
     }
   }
 
-  public getInstance(name: string) {
-    let instance = this.instanceMap.get(name);
+  public getInstance(name: any) {
+    const _name = typeof name === "string" ? name : name.name;
+    let instance = this.instanceMap.get(_name);
     if (!instance) {
-      const def = this.providers.find(p => p.provide === name);
+      const def = this.providers.find(p => p.provide === _name);
       if (!def) {
-        throw new Error(`找不到 provide: ${name}`)
-      }
-      if ((<ClassProvider>def).useClass) {
-        const Construct = (<ClassProvider>def).useClass
-        instance = new Construct();
-      } else if ((<ValueProvider>def).useValue) {
-        instance = (<ValueProvider>def).useValue;
-      } else if ((<FactoryProvider>def).useFactory) {
-        instance = (<FactoryProvider>def).useFactory();
+        instance = this.parent?.getInstance(_name);
       } else {
-        // TODO: 判断是否是类
-        instance = new (<any>def)()
+        if ((<ClassProvider>def).useClass) {
+          const Construct = (<ClassProvider>def).useClass
+          instance = new Construct();
+          this.instanceMap.set(_name, instance);
+        } else if ((<ValueProvider>def).useValue) {
+          instance = (<ValueProvider>def).useValue;
+          this.instanceMap.set(_name, instance);
+        } else if ((<FactoryProvider>def).useFactory) {
+          instance = (<FactoryProvider>def).useFactory();
+        } else {
+          // TODO: 判断是否是类
+          instance = new (<any>def)()
+          this.instanceMap.set(_name, instance);
+        }
       }
-      this.instanceMap.set(name, instance);
     }
     return instance;
   }
@@ -75,7 +85,7 @@ export class Container {
     return this.instanceMap;
   }
 
-  public setParent(ctx): void {
+  public setParent(ctx: Container): void {
     if (!(ctx instanceof Container)) {
       throw new Error('模块关联出错，请检查模块的创建方式');
     }
@@ -85,5 +95,15 @@ export class Container {
   public getParent(): Container {
     return this.parent;
   }
+  public get namespace(): string {
+    return this._namespace;
+  }
 
+  public getModule(namespace: string): Container {
+    return this.modules.get(namespace);
+  }
+
+  public registerModule(container: Container, namespace: string) {
+    this.modules.set(namespace, container);
+  }
 }

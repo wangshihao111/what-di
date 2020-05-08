@@ -1,0 +1,1 @@
+export const key = Symbol.for('__@@EASY_DEPENDENCE_INJECTION@@__');

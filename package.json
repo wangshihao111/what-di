@@ -1,14 +1,32 @@
 {
-  "name": "easy-di",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "what-di",
+  "version": "0.1.0",
+  "main": "lib/index.js",
   "license": "MIT",
+  "author": "王世豪<913003120@qq.com>",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublish": "yarn build"
   },
+  "keywords": [
+    "IOC",
+    "DI"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wangshihao111/easy-di.git"
+  },
+  "homepage": "https://github.com/wangshihao111/easy-di.git",
   "dependencies": {
     "@types/node": "^13.13.5",
     "typescript": "^3.8.3"
-  }
+  },
+  "files": [
+    "lib",
+    "README.md"
+  ]
 }

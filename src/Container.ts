@@ -1,3 +1,7 @@
+import { EventManager } from './EventManager';
+import { isForwardRef } from './forwardRef';
+import { getStore } from './store';
+
 export interface ClassProvider {
   provide: string;
   useClass: any;
@@ -13,29 +17,41 @@ export type FactoryProvider = {
   useFactory: any;
 }
 
-export type Provider =  ValueProvider | FactoryProvider | ClassProvider | any;
+export class BaseProvider {
+  static __is_base_provider__ = true;
+  constructor() {}
+}
+
+export type NormalProvider = ValueProvider | FactoryProvider | ClassProvider;
+
+export type Provider =  ValueProvider | FactoryProvider | ClassProvider | BaseProvider;
 
 export interface ContainerProps {
   providers: Provider[];
-  modules?: Container [];
+  modules?: Container[];
   namespace: string;
 }
 
 export class Container {
   private parent: Container; // 父级模块
-  private providers: Provider[];
+  private providers: NormalProvider[];
   private modules: Map<string, Container>;
   private instanceMap: Map<string, any>;
   private _namespace: string;
+  public depsMap: Map<string, any>;
 
   constructor({providers=[], modules=null, namespace = 'root'}: ContainerProps) {
     this.instanceMap = new Map();
     this._namespace = namespace;
     this.modules = new Map();
+    this.depsMap = new Map();
     this.providers = providers.map((provider: Provider) => {
       if ((<ValueProvider>provider).useValue || (<FactoryProvider>provider).useFactory || (<ClassProvider>provider).useClass) {
-        return provider;
+        return provider as NormalProvider;
       } else {
+        if (!(<typeof BaseProvider>provider).__is_base_provider__) {
+          throw new Error('提供的provider不是一个合法的Provider。')
+        }
         return {
           provide: (provider as any).name,
           useClass: provider
@@ -50,9 +66,34 @@ export class Container {
     }
   }
 
+  private handleForwardRef(forwardRefFn: any) {
+    const ClassType = forwardRefFn();
+    let instance = this.instanceMap.get(ClassType.name);
+    if (!instance) {
+      const store = getStore();
+      const haveInstance = store.get(ClassType.name);
+      if (!haveInstance) {
+        const temp = ({
+          ref: {},
+          namespace: this.namespace,
+        } as any);
+        store.set(ClassType.name, temp);
+        console.log('set store', ClassType.name)
+        instance = temp.ref;
+        this.instanceMap.set(ClassType.name, instance)
+      }
+    }
+    // (getStore().get('events') as EventManager).emit('done');
+    return instance;
+  }
+
   public getInstance(name: any) {
-    const _name = typeof name === "string" ? name : name.name;
+    let _name = typeof name === "string" ? name : name.name;
     let instance = this.instanceMap.get(_name);
+    // if (isForwardRef(name)) {
+    //   console.log('is Forward')
+    //   return this.handleForwardRef(name)
+    // }
     if (!instance) {
       const def = this.providers.find(p => p.provide === _name);
       if (!def) {
@@ -68,12 +109,11 @@ export class Container {
         } else if ((<FactoryProvider>def).useFactory) {
           instance = (<FactoryProvider>def).useFactory();
         } else {
-          // TODO: 判断是否是类
-          instance = new (<any>def)()
-          this.instanceMap.set(_name, instance);
+          return;
         }
       }
     }
+    // (getStore().get('events') as EventManager).emit('done');
     return instance;
   }
 

@@ -1,7 +1,5 @@
 import { Container, Provider, ContainerProps } from "./Container";
-import { key } from "./constant";
-
-const _global = typeof window !== "undefined" ? window : global;
+import { key, _global } from "./constant";
 
 export interface Injector {
   <T>(name: any, scope?: string): T;
@@ -62,10 +60,14 @@ export function inject<T>(name: any, scope?: string) {
   if (!rootContainer) {
     throw new Error("root IOC container not exists. ");
   }
-  if (scope && scope !== "root") {
-    return rootContainer.getModule(scope)?.getInstance(name) as T;
+  const targetContainer = scope && scope !== "root" ? rootContainer.getModule(scope) : rootContainer;
+  let instance = targetContainer?.getInstance(name);
+  if (targetContainer.depsMap.get(name)) {
+    targetContainer?.getInstance(targetContainer.depsMap.get(name));
+    targetContainer?.getInstanceMap().delete(name)
   }
-  return rootContainer.getInstance(name) as T;
+  instance = targetContainer?.getInstance(name)
+  return instance as T;
 }
 
 /**

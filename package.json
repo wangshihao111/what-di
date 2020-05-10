@@ -1,6 +1,6 @@
 {
   "name": "what-di",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "main": "lib/index.js",
   "license": "MIT",
   "author": "王世豪<913003120@qq.com>",
@@ -21,7 +21,7 @@
     "url": "https://github.com/wangshihao111/easy-di.git"
   },
   "homepage": "https://github.com/wangshihao111/easy-di.git",
-  "dependencies": {
+  "devDependencies": {
     "@types/node": "^13.13.5",
     "typescript": "^3.8.3"
   },

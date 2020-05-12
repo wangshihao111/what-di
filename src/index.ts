@@ -54,6 +54,6 @@
 // console.log("factory provider 1", inject<Sub>("Sub", "module1").test);
 
 export * from './constant';
-export * from './Container';
+export * from './container';
 export * from './decorators';
 export * from './helpers'

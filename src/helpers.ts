@@ -1,4 +1,4 @@
-import { Container, Provider, ContainerProps } from "./Container";
+import { Container, Provider, ContainerProps } from "./container";
 import { key, _global } from "./constant";
 
 export interface Injector {

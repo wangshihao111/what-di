@@ -10,5 +10,5 @@ npm i what-di
 yarn add what-di
 ```
 
-smock工具参考文档：
+what-di工具参考文档：
 [https://www.npmjs.com/package/what-di](https://www.npmjs.com/package/what-di)

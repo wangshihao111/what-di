@@ -20,7 +20,7 @@ export interface ModuleContainerProps {
   namespace: string;
 }
 
-function getRoot(): Container {
+export function getRoot(): Container {
   return _global[key] as Container;
 }
 /**
@@ -58,7 +58,7 @@ export function createModuleContainer(props: ModuleContainerProps): Container {
 export function inject<T>(name: any, scope?: string) {
   const rootContainer = _global[key] as Container;
   if (!rootContainer) {
-    throw new Error("root IOC container not exists. ");
+    throw new Error("root IOC container does not exists. ");
   }
   const targetContainer = scope && scope !== "root" ? rootContainer.getModule(scope) : rootContainer;
   let instance = targetContainer?.getInstance(name);
@@ -78,4 +78,20 @@ export function createNamespaceHelpers(namespace: string) {
   return {
     inject: (name: any) => inject(name, namespace),
   };
+}
+
+export function registerRootProviders(providers: Provider[]) {
+  const root = getRoot();
+  if (!root) {
+    throw new Error('Root IOC Container does not exist.')
+  }
+  root.registerProviders(providers);
+}
+
+export function registerRootModules(modules: Container[] = []) {
+  const root = getRoot();
+  if (!root) {
+    throw new Error('Root IOC Container does not exist.')
+  }
+  modules.forEach(m => root.registerModule(m, m.namespace))
 }

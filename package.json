@@ -5,7 +5,7 @@
   "license": "MIT",
   "author": "王世豪<913003120@qq.com>",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "dev": "nodemon --exec ts-node src/tests/index.ts",
     "build": "tsc",
     "prepublish": "yarn build"
   },

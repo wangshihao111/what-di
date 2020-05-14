@@ -34,7 +34,7 @@ export interface ContainerProps {
 
 export class Container {
   private parent: Container; // 父级模块
-  private providers: NormalProvider[];
+  private providers: Map<string, NormalProvider>;
   private modules: Map<string, Container>;
   private instanceMap: Map<string, any>;
   private _namespace: string;
@@ -45,19 +45,8 @@ export class Container {
     this._namespace = namespace;
     this.modules = new Map();
     this.depsMap = new Map();
-    this.providers = providers.map((provider: Provider) => {
-      if ((<ValueProvider>provider).useValue || (<FactoryProvider>provider).useFactory || (<ClassProvider>provider).useClass) {
-        return provider as NormalProvider;
-      } else {
-        if (!(<typeof BaseProvider>provider).__is_base_provider__) {
-          throw new Error('提供的provider不是一个合法的Provider。')
-        }
-        return {
-          provide: (provider as any).name,
-          useClass: provider
-        }
-      }
-    });
+    this.providers = new Map();
+    this.registerProviders(providers);
     if (modules) {
       modules.forEach(m =>{
         m.setParent(this)
@@ -95,7 +84,7 @@ export class Container {
     //   return this.handleForwardRef(name)
     // }
     if (!instance) {
-      const def = this.providers.find(p => p.provide === _name);
+      const def = this.providers.get(_name);
       if (!def) {
         instance = this.parent?.getInstance(_name);
       } else {
@@ -117,7 +106,23 @@ export class Container {
     return instance;
   }
 
-  public getProviders(): Provider[] {
+  public registerProviders(providers: Provider[]) {
+    providers.forEach((provider: Provider) => {
+      let _provider: NormalProvider = provider as NormalProvider;
+      if (!((<ValueProvider>provider).useValue || (<FactoryProvider>provider).useFactory || (<ClassProvider>provider).useClass)) {
+        if (!(<typeof BaseProvider>provider).__is_base_provider__) {
+          throw new Error('提供的provider不是一个合法的Provider。')
+        }
+        _provider = {
+          provide: (provider as any).name,
+          useClass: provider
+        }
+      }
+      this.providers.set(_provider.provide, _provider);
+    });
+  }
+
+  public getProviders(): Map<string, NormalProvider> {
     return this.providers;
   }
 

@@ -3,14 +3,15 @@ import {createRootContainer, registerRootProviders, inject} from '../index';
 // const extraProvider
 
 createRootContainer({
-  providers: []
+  providers: [],
+  modules: []
 });
 
 registerRootProviders([
   {
     provide: 'extra',
     useValue: 111
-  }
+  },
 ]);
 registerRootProviders([
   {

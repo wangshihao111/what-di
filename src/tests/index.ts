@@ -12,5 +12,11 @@ registerRootProviders([
     useValue: 111
   }
 ]);
+registerRootProviders([
+  {
+    provide: 'extra',
+    useValue: 222
+  }
+]);
 
 console.log(inject('extra'))

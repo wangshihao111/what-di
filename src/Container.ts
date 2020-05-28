@@ -1,6 +1,7 @@
 import { EventManager } from './EventManager';
 import { isForwardRef } from './forwardRef';
 import { getStore } from './store';
+import { log } from './logger';
 
 export interface ClassProvider {
   provide: string;
@@ -118,7 +119,12 @@ export class Container {
           useClass: provider
         }
       }
-      this.providers.set(_provider.provide, _provider);
+      const exist = this.providers.get(_provider.provide);
+      if (exist) {
+        log('注册Provider失败，因为该令牌的Provider已经存在。');
+      } else {
+        this.providers.set(_provider.provide, _provider);
+      }
     });
   }
 
@@ -149,6 +155,11 @@ export class Container {
   }
 
   public registerModule(container: Container, namespace: string) {
-    this.modules.set(namespace, container);
+    const exist = this.providers.get(namespace);
+    if (exist) {
+      log('注册Module失败，因为该namespace已经存在。');
+    } else {
+      this.modules.set(namespace, container);
+    }
   }
 }

@@ -28,6 +28,11 @@ export function getRoot(): Container {
  * @param {RootContainerProps} props
  */
 export function createRootContainer(props: RootContainerProps): void {
+  if (getRoot()) {
+    console.log('根容器已存在, 跳过创建，应用providers和modules。');
+    registerRootProviders(props.providers);
+    registerRootModules(props.modules);
+  }
   const container = new Container({ ...props, namespace: "root" });
   _global[key] = container;
 }
@@ -40,6 +45,7 @@ export function createModuleContainer(props: ModuleContainerProps): Container {
   let root = getRoot();
   const container = new Container(props);
   if (!root) {
+    console.log('根容器不存在，自动创建根容器。')
     createRootContainer({
       providers: [],
       modules: [container]
@@ -80,6 +86,10 @@ export function createNamespaceHelpers(namespace: string) {
   };
 }
 
+/**
+ * 注册根供应商
+ * @param providers 
+ */
 export function registerRootProviders(providers: Provider[]) {
   const root = getRoot();
   if (!root) {
@@ -88,6 +98,10 @@ export function registerRootProviders(providers: Provider[]) {
   root.registerProviders(providers);
 }
 
+/**
+ * 注册根容器的子模块
+ * @param modules 
+ */
 export function registerRootModules(modules: Container[] = []) {
   const root = getRoot();
   if (!root) {

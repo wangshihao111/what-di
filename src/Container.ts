@@ -1,6 +1,3 @@
-import { EventManager } from './EventManager';
-import { isForwardRef } from './forwardRef';
-import { getStore } from './store';
 import { log } from './logger';
 
 export interface ClassProvider {
@@ -56,26 +53,26 @@ export class Container {
     }
   }
 
-  private handleForwardRef(forwardRefFn: any) {
-    const ClassType = forwardRefFn();
-    let instance = this.instanceMap.get(ClassType.name);
-    if (!instance) {
-      const store = getStore();
-      const haveInstance = store.get(ClassType.name);
-      if (!haveInstance) {
-        const temp = ({
-          ref: {},
-          namespace: this.namespace,
-        } as any);
-        store.set(ClassType.name, temp);
-        console.log('set store', ClassType.name)
-        instance = temp.ref;
-        this.instanceMap.set(ClassType.name, instance)
-      }
-    }
-    // (getStore().get('events') as EventManager).emit('done');
-    return instance;
-  }
+  // private handleForwardRef(forwardRefFn: any) {
+  //   const ClassType = forwardRefFn();
+  //   let instance = this.instanceMap.get(ClassType.name);
+  //   if (!instance) {
+  //     const store = getStore();
+  //     const haveInstance = store.get(ClassType.name);
+  //     if (!haveInstance) {
+  //       const temp = ({
+  //         ref: {},
+  //         namespace: this.namespace,
+  //       } as any);
+  //       store.set(ClassType.name, temp);
+  //       console.log('set store', ClassType.name)
+  //       instance = temp.ref;
+  //       this.instanceMap.set(ClassType.name, instance)
+  //     }
+  //   }
+  //   // (getStore().get('events') as EventManager).emit('done');
+  //   return instance;
+  // }
 
   public getInstance(name: any) {
     let _name = typeof name === "string" ? name : name.name;

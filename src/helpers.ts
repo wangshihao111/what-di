@@ -1,5 +1,6 @@
 import { Container, Provider, ContainerProps } from "./container";
 import { key, _global } from "./constant";
+import {log} from './logger'
 
 export interface Injector {
   <T>(name: any, scope?: string): T;
@@ -29,12 +30,13 @@ export function getRoot(): Container {
  */
 export function createRootContainer(props: RootContainerProps): void {
   if (getRoot()) {
-    console.log('根容器已存在, 跳过创建，应用providers和modules。');
+    log('根容器已存在, 跳过创建，应用providers和modules。');
     registerRootProviders(props.providers);
     registerRootModules(props.modules);
+  } else {
+    const container = new Container({ ...props, namespace: "root" });
+    _global[key] = container;
   }
-  const container = new Container({ ...props, namespace: "root" });
-  _global[key] = container;
 }
 
 /**

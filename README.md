@@ -14,6 +14,8 @@ yarn add what-di
 
 创建根容器：
 
+> 一般在应用入口处创建。创建是可以提供默认的providers和modules。
+
 ```js
 import { createRootContainer } from 'what-id';
 
@@ -27,6 +29,8 @@ createRootContainer({
 ```
 
 运行时注册供应者：
+
+> 需要动态注册provider时，可以使用该函数将供应者注册到根容器。
 
 ```js
 import { registerRootProviders } from 'what-id';
@@ -47,6 +51,8 @@ const config = inject('config');
 ```
 
 注入模块依赖：
+
+> 注入模块依赖时，需要提供对应子模块的命名空间。注入器会先在当前模块内查找实例，如果未找到则会继续从父容器内查找，直到找到。找不到时返回undefined。
 
 ```js
 import { inject, createNamespaceHelpers } from 'what-id';
@@ -71,7 +77,7 @@ class Example {
   }
 }
 
-// 或装饰器模式
+// 或装饰器模式。实验功能，可能不稳定。
 
 class Example {
   @Inject('config')

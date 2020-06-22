@@ -1,4 +1,12 @@
-export const key = Symbol.for('__@@EASY_DEPENDENCE_INJECTION@@__');
+function getKey(): any {
+  if (process.env.NODE_ENV === 'production') {
+    return Symbol.for('__@@WHAT_DI_CONTAINER@@__');
+  } else {
+    return '__what-di__';
+  }
+}
+
+export const key = getKey();
 
 export const diStoreKey = Symbol.for('__@@EASY_DEPENDENCE_INJECTION_STORE@@__');
 

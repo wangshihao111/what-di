@@ -120,7 +120,7 @@ export type FactoryProvider = {
 
 export interface ClassProvider {
   provide: string;
-  useClass: any;
+  useClass: typeof BaeProvider;
 }
 
 // 也可以直接传递一个类到provider数组，但该类需要继承BaseProvider，例如
@@ -137,6 +137,38 @@ createRootContainer({
   modules: []
 });
 
+
+```
+
+## 如何订阅状态provider实例状态？
+如果使用ClassProvider，需要继承BaseProvider,BaseProvider内置subscribe方法提供订阅；setState方法用于设置状态。
+
+如果是ValueProvider或FactoryProvider，则需要自行实现订阅发布规则。
+
+```ts
+import { BaseProvider, inject } from 'what-di'
+type StateType = {
+  name: string;
+}
+
+class Subscribable extends BaseProvider<StateType> {
+  // ...
+  fetch() {
+    // ... 
+    this.setState(userData);
+  }
+}
+
+// 订阅状态
+
+const Subscribable = inject<Subscribable>(Subscribable);
+
+const unsubscribe = Subscribable.subscribe((state: StateType) => {
+  console.log(state);
+});
+
+// 在需要时取消订阅
+unsubscribe()
 
 ```
 

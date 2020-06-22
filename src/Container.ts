@@ -1,8 +1,9 @@
 import { log } from './logger';
+import { BaseProvider } from './base-provider';
 
 export interface ClassProvider {
   provide: string;
-  useClass: any;
+  useClass: typeof BaseProvider;
 }
 
 export type ValueProvider = {
@@ -15,14 +16,9 @@ export type FactoryProvider = {
   useFactory: any;
 }
 
-export class BaseProvider {
-  static __is_base_provider__ = true;
-  constructor() {}
-}
-
 export type NormalProvider = ValueProvider | FactoryProvider | ClassProvider;
 
-export type Provider =  ValueProvider | FactoryProvider | ClassProvider | BaseProvider;
+export type Provider =  ValueProvider | FactoryProvider | ClassProvider | typeof BaseProvider;
 
 export interface ContainerProps {
   providers: Provider[];
@@ -53,34 +49,9 @@ export class Container {
     }
   }
 
-  // private handleForwardRef(forwardRefFn: any) {
-  //   const ClassType = forwardRefFn();
-  //   let instance = this.instanceMap.get(ClassType.name);
-  //   if (!instance) {
-  //     const store = getStore();
-  //     const haveInstance = store.get(ClassType.name);
-  //     if (!haveInstance) {
-  //       const temp = ({
-  //         ref: {},
-  //         namespace: this.namespace,
-  //       } as any);
-  //       store.set(ClassType.name, temp);
-  //       console.log('set store', ClassType.name)
-  //       instance = temp.ref;
-  //       this.instanceMap.set(ClassType.name, instance)
-  //     }
-  //   }
-  //   // (getStore().get('events') as EventManager).emit('done');
-  //   return instance;
-  // }
-
   public getInstance(name: any) {
     let _name = typeof name === "string" ? name : name.name;
     let instance = this.instanceMap.get(_name);
-    // if (isForwardRef(name)) {
-    //   console.log('is Forward')
-    //   return this.handleForwardRef(name)
-    // }
     if (!instance) {
       const def = this.providers.get(_name);
       if (!def) {
@@ -100,7 +71,6 @@ export class Container {
         }
       }
     }
-    // (getStore().get('events') as EventManager).emit('done');
     return instance;
   }
 
@@ -108,12 +78,12 @@ export class Container {
     providers.forEach((provider: Provider) => {
       let _provider: NormalProvider = provider as NormalProvider;
       if (!((<ValueProvider>provider).useValue || (<FactoryProvider>provider).useFactory || (<ClassProvider>provider).useClass)) {
-        if (!(<typeof BaseProvider>provider).__is_base_provider__) {
+        if (!(<any>provider).__is_base_provider__) {
           throw new Error('提供的provider不是一个合法的Provider。')
         }
         _provider = {
           provide: (provider as any).name,
-          useClass: provider
+          useClass: provider as typeof BaseProvider
         }
       }
       const exist = this.providers.get(_provider.provide);

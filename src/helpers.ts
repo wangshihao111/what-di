@@ -1,6 +1,6 @@
 import { Container, Provider, ContainerProps } from "./container";
 import { key, _global } from "./constant";
-import {log} from './logger'
+import { log } from './logger'
 
 export interface Injector {
   <T>(name: any, scope?: string): T;

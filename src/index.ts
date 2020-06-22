@@ -57,3 +57,4 @@ export * from './constant';
 export * from './container';
 export * from './decorators';
 export * from './helpers'
+export * from './base-provider'

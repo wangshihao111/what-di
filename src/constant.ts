@@ -1,9 +1,10 @@
 function getKey(): any {
-  if (process.env.NODE_ENV === 'production') {
-    return Symbol.for('__@@WHAT_DI_CONTAINER@@__');
-  } else {
-    return '__what-di__';
-  }
+  return Symbol.for('__@@WHAT_DI_CONTAINER@@__');
+  // if (process.env.NODE_ENV === 'production') {
+  //   return Symbol.for('__@@WHAT_DI_CONTAINER@@__');
+  // } else {
+  //   return '__what-di__';
+  // }
 }
 
 export const key = getKey();

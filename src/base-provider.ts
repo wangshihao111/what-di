@@ -33,7 +33,7 @@ export class BaseProvider<T> {
       this.observers.push(func)
       this.emitState();
     }
-    return function unSubscribe() {
+    return () => {
       const index = this.observers.indexOf(func);
       if (index > -1) {
         this.observers.splice(index, 1);

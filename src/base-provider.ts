@@ -31,7 +31,7 @@ export class BaseProvider<T> {
   public subscribe(func: DIObserver<T>) {
     if (this.observers.indexOf(func) < 0) {
       this.observers.push(func)
-      this.emitState();
+      func(this.state);
     }
     return () => {
       const index = this.observers.indexOf(func);
